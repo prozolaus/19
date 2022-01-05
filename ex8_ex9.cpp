@@ -38,6 +38,7 @@ class my_vector
 public:
     my_vector() : sz{0}, elem{nullptr}, space{0} {}
     explicit my_vector(int n);
+    my_vector(initializer_list<T> lst);
 
     my_vector(const my_vector &);            // copy constructor
     my_vector &operator=(const my_vector &); // copy assignment
@@ -69,6 +70,17 @@ my_vector<T, A>::my_vector(int n)
     for (int i = 0; i < sz; i++)
         alloc.construct(&elem[i], T());
 }
+//--------------------------------------------------------------------
+
+template <typename T, typename A>
+my_vector<T, A>::my_vector(initializer_list<T> lst)
+    : sz{(int)lst.size()}, elem{alloc.allocate(sz)}, space{sz}
+{
+    T *ptr = elem;
+    for (const T &p : lst)
+        alloc.construct(ptr++, p);
+}
+
 //--------------------------------------------------------------------
 
 template <typename T, typename A>
@@ -119,6 +131,15 @@ my_vector<T, A>::~my_vector()
 
 template <typename T, typename A>
 T &my_vector<T, A>::at(int n)
+{
+    if (n < 0 || n >= sz)
+        throw Range_error(n);
+    return elem[n];
+}
+//--------------------------------------------------------------------
+
+template <typename T, typename A>
+const T &my_vector<T, A>::at(int n) const
 {
     if (n < 0 || n >= sz)
         throw Range_error(n);
